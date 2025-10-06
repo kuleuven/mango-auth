@@ -1,3 +1,4 @@
+import argparse
 import logging
 import sys
 import webbrowser
@@ -113,4 +114,13 @@ def iinit(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
         conn.release()
 
 def iinit_cli():
-    iinit(*sys.argv[1:])
+    parser = argparse.ArgumentParser(
+        prog='mango_auth',
+        description='Run interactive authentication against KU Leuven')
+    parser.add_argument('user_name')
+    parser.add_argument('zone_name')
+    parser.add_argument('--host', default='')
+
+    args = parser.parse_args()
+    iinit(args.user_name, args.zone_name, args.host)
+
