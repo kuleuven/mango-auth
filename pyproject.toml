@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools >= 72.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mango_auth"
+version = "0.0.1"
+authors = [
+  { name="Peter Verraedt", email="peter.verraedt@kuleuven.be" },
+]
+description = "Mango Auth is a small python module to authenticate using interactive pam authentication against an iRODS installation, opening web browser links as needed."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "BSD-3-Clause"
+license-files = [ "LICENSE" ]
+
+[project.urls]
+repository = "https://github.com/kuleuven/mango-auth"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ['mango_auth']
+
+[tool.pylint.reports]
+output-format = ["colorized"]
