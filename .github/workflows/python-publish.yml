@@ -16,7 +16,10 @@ on:
   release:
     types: [published]
   push:
-    branches: [main]
+    # run only against tags
+    tags:
+      - "*"
+
 jobs:
   build:
     runs-on: ubuntu-latest # only build this distribution for now
