@@ -1,0 +1,29 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# Some changes have been made: different OS
+
+name: Python package
+
+run-name: Build triggered via ${{ github.event_name }} by ${{ github.actor }}
+
+on:
+  # push won't trigger this because you cannot push without PR anyways
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint:
+    # only run one linting job on ubuntu and the latest Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pylint
+          pip install -r requirements.txt
+      - name: Lint with pylint
+        run: |
+          pylint mango_auth
