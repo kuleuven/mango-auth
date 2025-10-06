@@ -1,3 +1,5 @@
+"""Module to autheticate interactively against iRODS"""
+
 import argparse
 import logging
 import sys
@@ -13,27 +15,25 @@ from irods.password_obfuscation import encode
 
 class AuthenticationHandler(logging.Handler):
     """Custom logging handler that opens browser for authentication URLs."""
-    
+
     def __init__(self, level=logging.INFO):
         super().__init__(level)
         # Pattern to match "Server prompt: Please authenticate at url"
-        self.auth_pattern = re.compile(r'Server prompt: Please authenticate at (https?://[^\s]+)', re.IGNORECASE)
-    
+        expression = r'Server prompt: Please authenticate at (https?://[^\s]+)'
+        self.auth_pattern = re.compile(expression, re.IGNORECASE)
+
     def emit(self, record):
         # Format and print the log message
         msg = self.format(record)
         print(msg)
-        
+
         # Check if this is an authentication message
         if record.levelno == logging.INFO:
             match = self.auth_pattern.search(record.getMessage())
             if match:
                 url = match.group(1)
                 print(f"Opening browser for authentication: {url}")
-                try:
-                    webbrowser.open(url)
-                except Exception as e:
-                    print(f"Failed to open browser: {e}")
+                webbrowser.open(url)
 
 config_template = {
     "irods_host": "{irods_host}",
@@ -54,10 +54,16 @@ config_template = {
 }
 
 def check_version():
+    """Check whether the iRODS plugin version is 3.2.0 or above"""
+
     if irods.__version__.startswith(("0.", "1.", "2.", "3.1.")):
-        raise Exception("You are using an outdated version %s of the python irods client. Please update to 3.2.0 to use this tool." % irods.__version__)
+        raise RuntimeError(f"You are using an outdated version {irods.__version__} "
+          + "of the python irods client. "
+          + "Please update to 3.2.0 to use this tool.")
 
 def register_webbrowser_handler():
+    """Register a webbrowser handler to the logging mechanism"""
+
     root = logging.getLogger()
     root.setLevel(logging.INFO)
 
@@ -69,24 +75,32 @@ def register_webbrowser_handler():
     root.addHandler(handler)
 
 def put(file, contents):
+    """Put contents into a file"""
+
     os.makedirs(os.path.dirname(file), exist_ok=True)
-    with open(file, "w") as f:
+
+    with open(file, "w", encoding="utf-8") as f:
         f.write(contents)
 
 def get_config(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
+    """Retrieve iRODS configuration from the embedded template"""
+
     if irods_host == '':
         if irods_zone_name.startswith('vsc'):
             irods_host = f"{irods_zone_name}.irods.hpc.kuleuven.be"
         else:
             irods_host = f"{irods_zone_name}.irods.icts.kuleuven.be"
 
-    def format(val):
+    def _format(val):
         if isinstance(val, str):
-            return val.format(irods_user_name=irods_user_name, irods_zone_name=irods_zone_name, irods_host=irods_host)
-        else:
-            return val
+            return val.format(
+              irods_user_name=irods_user_name,
+              irods_zone_name=irods_zone_name,
+              irods_host=irods_host,
+            )
+        return val
 
-    config = dict(map(lambda kv: (kv[0], format(kv[1])), config_template.items()))
+    config = dict(map(lambda kv: (kv[0], _format(kv[1])), config_template.items()))
 
     if platform.system() == 'Windows':
         config["irods_authentication_uid"] = '1000'
@@ -96,12 +110,15 @@ def get_config(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
     return config
 
 def iinit(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
+    """Run iinit to authenticate against an iRODS server and write a .irodsA file"""
+
     check_version()
     register_webbrowser_handler()
 
     # Write config
     config = get_config(irods_user_name, irods_zone_name, irods_host, **kwargs)
-    env_file = os.getenv('IRODS_ENVIRONMENT_FILE', os.path.expanduser('~/.irods/irods_environment.json'))
+    env_file = os.getenv('IRODS_ENVIRONMENT_FILE',
+      os.path.expanduser('~/.irods/irods_environment.json'))
     put(env_file, json.dumps(config))
 
     # Remove previous .irodsA file
@@ -114,6 +131,8 @@ def iinit(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
         conn.release()
 
 def iinit_cli():
+    """Helper function to run the CLI"""
+
     parser = argparse.ArgumentParser(
         prog='mango_auth',
         description='Run interactive authentication against KU Leuven')
@@ -123,4 +142,3 @@ def iinit_cli():
 
     args = parser.parse_args()
     iinit(args.user_name, args.zone_name, args.host)
-
