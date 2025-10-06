@@ -43,7 +43,7 @@ jobs:
   pypi-publish:
     name: Upload release to PyPI
     # only upload to PyPI on releases and tagged branches
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs:
       - build
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
   testpypi-publish:
     name: Upload release to TestPyPI
     # upload to TestPyPI on every push to main, not with tags
-    if: (!startsWith(github.ref, 'refs/tags/'))
+    if: (!startsWith(github.ref, 'refs/tags/v'))
     needs:
       - build
     runs-on: ubuntu-latest
