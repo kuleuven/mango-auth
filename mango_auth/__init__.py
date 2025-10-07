@@ -82,14 +82,8 @@ def put(file, contents):
     with open(file, "w", encoding="utf-8") as f:
         f.write(contents)
 
-def get_config(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
+def get_config(irods_user_name, irods_zone_name, irods_host, **kwargs):
     """Retrieve iRODS configuration from the embedded template"""
-
-    if irods_host == '':
-        if irods_zone_name.startswith('vsc'):
-            irods_host = f"{irods_zone_name}.irods.hpc.kuleuven.be"
-        else:
-            irods_host = f"{irods_zone_name}.irods.icts.kuleuven.be"
 
     def _format(val):
         if isinstance(val, str):
@@ -109,7 +103,7 @@ def get_config(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
 
     return config
 
-def iinit(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
+def iinit(irods_user_name, irods_zone_name, irods_host, a_ttl = 168, **kwargs):
     """Run iinit to authenticate against an iRODS server and write a .irodsA file"""
 
     check_version()
@@ -127,6 +121,7 @@ def iinit(irods_user_name, irods_zone_name, irods_host = '', **kwargs):
 
     # Get a session and enforce authentication
     with iRODSSession(irods_env_file=env_file) as session:
+        session.set_auth_option_for_scheme("pam_interactive", "a_ttl", str(a_ttl))
         conn = session.pool.get_connection()
         conn.release()
 
@@ -138,7 +133,8 @@ def iinit_cli():
         description='Run interactive authentication against KU Leuven')
     parser.add_argument('user_name')
     parser.add_argument('zone_name')
-    parser.add_argument('--host', default='')
+    parser.add_argument('host')
+    parser.add_argument('--ttl', default=168)
 
     args = parser.parse_args()
-    iinit(args.user_name, args.zone_name, args.host)
+    iinit(args.user_name, args.zone_name, args.host, a_ttl=args.ttl)
