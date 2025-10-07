@@ -130,7 +130,7 @@ def iinit_cli():
 
     parser = argparse.ArgumentParser(
         prog='mango_auth',
-        description='Run interactive authentication against KU Leuven')
+        description='Run pam interactive authentication against an iRODS server')
     parser.add_argument('user_name')
     parser.add_argument('zone_name')
     parser.add_argument('host')
