@@ -6,10 +6,17 @@ Mango Auth is a small python module to authenticate using interactive pam authen
 
 ```shell
 $ pip install mango_auth
-$ mango_auth <irods_user_name> <irods_zone_name>
+$ mango_auth <irods_user_name> <irods_zone_name> <irods_host>
 2025-10-06 16:24:44,513 - irods.auth.pam_interactive - INFO - Server prompt: Please authenticate at https://mango-auth.icts.kuleuven.be/oauth/device/auth?user_code=XXXXXXXXXX
 Opening browser for authentication: https://mango-auth.icts.kuleuven.be/oauth/device/auth?user_code=XXXXXXXXXX
 2025-10-06 16:25:04,745 - irods.auth.pam_interactive - INFO - Server prompt: You are authenticated using a device code.
+```
+
+or in python:
+
+```python
+from mango_auth import iinit
+iinit('user_name', 'zone_name', 'host')
 ```
 
 ## Development
