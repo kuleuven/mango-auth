@@ -2,7 +2,6 @@
 
 import argparse
 import logging
-import sys
 import webbrowser
 import re
 import os
@@ -10,9 +9,9 @@ import os.path
 import platform
 import json
 import irods
-import irods.auth.pam_interactive
 from irods.session import iRODSSession
 from irods.password_obfuscation import encode
+from . import pam_interactive
 
 class AuthenticationHandler(logging.Handler):
     """Custom logging handler that opens browser for authentication URLs."""
@@ -125,8 +124,8 @@ def iinit(irods_user_name, irods_zone_name, irods_host, a_ttl = 168, **kwargs):
         session.set_auth_option_for_scheme("pam_interactive", "a_ttl", str(a_ttl))
 
         # Preload our patched pam_interactive auth module
-        import irods.auth
-        from . import pam_interactive
+        import irods.auth # pylint: disable=import-outside-toplevel,redefined-outer-name
+
         irods.auth.pam_interactive = pam_interactive
 
         # Set the account storage
