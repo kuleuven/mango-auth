@@ -7,7 +7,7 @@ name: Python package
 run-name: Build triggered via ${{ github.event_name }} by ${{ github.actor }}
 
 on:
-  # push won't trigger this because you cannot push without PR anyways
+  push:
   pull_request:
     branches: ["main"]
 
