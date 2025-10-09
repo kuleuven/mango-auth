@@ -10,6 +10,7 @@ import os.path
 import platform
 import json
 import irods
+import irods.auth.pam_interactive
 from irods.session import iRODSSession
 from irods.password_obfuscation import encode
 
@@ -122,6 +123,15 @@ def iinit(irods_user_name, irods_zone_name, irods_host, a_ttl = 168, **kwargs):
     # Get a session and enforce authentication
     with iRODSSession(irods_env_file=env_file) as session:
         session.set_auth_option_for_scheme("pam_interactive", "a_ttl", str(a_ttl))
+
+        # Preload our patched pam_interactive auth module
+        import irods.auth
+        from . import pam_interactive
+        irods.auth.pam_interactive = pam_interactive
+
+        # Set the account storage
+        session.pool.account.pstate_storage = iRODSSession.get_irods_password_file() + ".pstate"
+
         conn = session.pool.get_connection()
         conn.release()
 
