@@ -129,7 +129,7 @@ def iinit(irods_user_name, irods_zone_name, irods_host, a_ttl = 168, **kwargs):
         irods.auth.pam_interactive = pam_interactive
 
         # Set the account storage
-        session.pool.account.pstate_storage = iRODSSession.get_irods_password_file() + ".pstate"
+        session.pool.account.pstate_storage = iRODSSession.get_irods_password_file() + ".json"
 
         conn = session.pool.get_connection()
         conn.release()
