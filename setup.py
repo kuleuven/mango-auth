@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='mango_auth',
-    version='0.0.1',
+    version='0.0.8',
     py_modules=['mango_auth'],
     entry_points={
         'console_scripts': [
