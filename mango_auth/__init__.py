@@ -97,7 +97,7 @@ def get_config(irods_user_name, irods_zone_name, irods_host, **kwargs):
     config = dict(map(lambda kv: (kv[0], _format(kv[1])), config_template.items()))
 
     if platform.system() == 'Windows':
-        config["irods_authentication_uid"] = '1000'
+        config["irods_authentication_uid"] = 1000
 
     config.update(kwargs)
 
